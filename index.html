@@ -18,7 +18,7 @@
        </div>
        Color: <input id="color" value="#00ab33" type="color" class="border-2 inline-block px-2 border-indigo-500 mt-2 rounded-md"/>
        <br/>
-       <button class="mt-4 bg-indigo-500 hover:bg-indigo-600  text-white py-2 px-3 rounded-md" onclick="draw()">
+       <button class="mt-4 bg-indigo-500 hover:bg-indigo-600 mr-1  text-white py-2 px-3 rounded-md" onclick="draw()">
        Draw
        </button>
        <a id="dnld" class=" bg-indigo-500 hover:bg-indigo-600 text-white inline-block py-2 px-3 rounded-md" href="" download="image.png" >Download</a>
@@ -41,8 +41,8 @@ const scale = document.getElementById("scale");
 
 function draw(){
 	const SCALE = BASE_SCALE*scale.value;
-	pen.lineWidth = 2;
-  pen.strokeStyle =  "#757579";
+	pen.lineWidth = 3;
+  pen.strokeStyle = "#757579";
 	pen.clearRect(0, 0, gen.width, gen.height);
 // draw the axes
 
@@ -107,7 +107,7 @@ let scope = {
     x: -10,
 }
 pen.strokeStyle = color.value;
-
+pen.lineWidth = 3;
 pen.beginPath();
 for (let x=-10;x<=10;x+=DIFF){
 	const y = code.evaluate({x});
