@@ -9,11 +9,16 @@
         <h2 class="text-2xl">
           YMath Graph Generator
         </h2>
-       y = <input value="4-x^2" id="eq" placeholder="Enter equation" class="border-2 px-2 border-indigo-500 mt-5 rounded-md" type="text" />
+       <div>
+       y = <input value="4-x^2" id="eq" placeholder="Enter equation" class="border-2 inline-block px-2 border-indigo-500 mt-5 rounded-md" type="text" />
+       </div>
        <!--- <input name="min" placeholder="Min" class="border-2 px-2 border-indigo-500 mt-2 rounded-md w-16" /> to <input placeholder="Max" name="max" class="border-2 px-2 border-indigo-500 mt-2 rounded-md w-16" />--->
-       <input name="scale" placeholder="Scale" class="border-2 block px-2 border-indigo-500 mt-2 rounded-md" type="text" />
-       <input id="color" value="#00ab33" type="color" class="border-2 block px-2 border-indigo-500 mt-2 rounded-md"/>
-       <button class="mt-4 bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-3 rounded-md" onclick="draw()">
+       <div>
+       Scale: <input id="scale" value="1" placeholder="Scale" class="border-2  px-2 border-indigo-500 mt-2 rounded-md" type="text" />
+       </div>
+       Color: <input id="color" value="#00ab33" type="color" class="border-2 inline-block px-2 border-indigo-500 mt-2 rounded-md"/>
+       <br/>
+       <button class="mt-4 bg-indigo-500 hover:bg-indigo-600  text-white py-2 px-3 rounded-md" onclick="draw()">
        Draw
        </button>
        <a id="dnld" class=" bg-indigo-500 hover:bg-indigo-600 text-white inline-block py-2 px-3 rounded-md" href="" download="image.png" >Download</a>
@@ -25,15 +30,17 @@
     <script>
     const DIFF = 0.01;
 const ARROW_LENGTH = 6;
-const SCALE = 15;
+const BASE_SCALE = 15;
 
 
 const eq = document.getElementById("eq");
 const gen = document.getElementById("gen");
 const pen = gen.getContext('2d')
 const color = document.getElementById("color");
+const scale = document.getElementById("scale");
 
 function draw(){
+	const SCALE = BASE_SCALE*scale.value;
 	pen.lineWidth = 2;
   pen.strokeStyle =  "#757579";
 	pen.clearRect(0, 0, gen.width, gen.height);
@@ -105,7 +112,7 @@ pen.beginPath();
 for (let x=-10;x<=10;x+=DIFF){
 	const y = code.evaluate({x});
   
-  pen.lineTo((x+10)*SCALE, 300-((y+10)*SCALE)); 
+  pen.lineTo((x+10/scale.value)*SCALE, 300-((y+10/scale.value)*SCALE)); 
   
 }
 pen.closePath();
