@@ -7,11 +7,12 @@
     <div class="flex flex-row mx-10 mt-5">
       <div>
         <h2 class="text-2xl">
-          YMath graph generator
+          YMath Graph Generator
         </h2>
        y = <input value="4-x^2" id="eq" placeholder="Enter equation" class="border-2 px-2 border-indigo-500 mt-5 rounded-md" type="text" />
        <!--- <input name="min" placeholder="Min" class="border-2 px-2 border-indigo-500 mt-2 rounded-md w-16" /> to <input placeholder="Max" name="max" class="border-2 px-2 border-indigo-500 mt-2 rounded-md w-16" />--->
        <input name="scale" placeholder="Scale" class="border-2 block px-2 border-indigo-500 mt-2 rounded-md" type="text" />
+       <input id="color" value="#00ab33" type="color" class="border-2 block px-2 border-indigo-500 mt-2 rounded-md"/>
        <button class="mt-4 bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-3 rounded-md" onclick="draw()">
        Draw
        </button>
@@ -29,9 +30,11 @@ const SCALE = 15;
 const eq = document.getElementById("eq");
 const gen = document.getElementById("gen");
 const pen = gen.getContext('2d')
-
+const color = document.getElementById("color");
 
 function draw(){
+	pen.lineWidth = 2;
+  pen.strokeStyle =  "black";
 	pen.clearRect(0, 0, gen.width, gen.height);
 // draw the axes
 
@@ -95,6 +98,8 @@ const code = node.compile()
 let scope = {
     x: -10,
 }
+pen.strokeStyle = color.value;
+
 pen.beginPath();
 for (let x=-10;x<=10;x+=DIFF){
 	const y = code.evaluate({x});
