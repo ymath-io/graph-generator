@@ -1,0 +1,111 @@
+<html>
+  <head>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.3/math.js"></script>
+  </head>
+  <body onload="draw()">
+    <div class="flex flex-row mx-10 mt-5">
+      <div>
+        <h2 class="text-2xl">
+          YMath graph generator
+        </h2>
+       y = <input value="4-x^2" id="eq" placeholder="Enter equation" class="border-2 px-2 border-indigo-500 mt-5 rounded-md" type="text" />
+       <!--- <input name="min" placeholder="Min" class="border-2 px-2 border-indigo-500 mt-2 rounded-md w-16" /> to <input placeholder="Max" name="max" class="border-2 px-2 border-indigo-500 mt-2 rounded-md w-16" />--->
+       <input name="scale" placeholder="Scale" class="border-2 block px-2 border-indigo-500 mt-2 rounded-md" type="text" />
+       <button class="mt-4 bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-3 rounded-md" onclick="draw()">
+       Draw
+       </button>
+      </div>
+      <div class="ml-10">
+        <canvas width="300" height="300" class="border-2 border-indigo-500 rounded-lg" id="gen" />
+      </div>
+    </div>
+    <script>
+    const DIFF = 0.01;
+const ARROW_LENGTH = 6;
+const SCALE = 15;
+
+
+const eq = document.getElementById("eq");
+const gen = document.getElementById("gen");
+const pen = gen.getContext('2d')
+
+
+function draw(){
+	pen.clearRect(0, 0, gen.width, gen.height);
+// draw the axes
+
+	// y axis
+  pen.beginPath();
+ 	pen.moveTo(150, 0);
+  pen.lineTo(150, 300);
+  pen.closePath();
+ 	pen.stroke();
+  
+ 	// x axis
+  pen.beginPath();
+ 	pen.moveTo(0, 150);
+  pen.lineTo(300, 150);
+  pen.closePath();
+ 	pen.stroke(); 
+ 
+function transformCoordinate(x){
+	return (x-150)*(-1)/150*ARROW_LENGTH;
+} 
+ 
+// draw the arrows
+	
+  for (let axis of ['x', 'y']){
+  	for (let side of [0, 300]){
+    	const point = axis === 'x' ? [side, 150] : [150, side];
+      
+      // se
+      if (axis === 'x'){
+      	pen.beginPath();
+        pen.moveTo(...point);
+        pen.lineTo(point[0]+transformCoordinate(point[0]), point[1]+ARROW_LENGTH);
+        pen.closePath();
+        pen.stroke();
+        pen.beginPath();
+        pen.moveTo(...point);
+        pen.lineTo(point[0]+transformCoordinate(point[0]), point[1]-ARROW_LENGTH);
+        pen.closePath();
+        pen.stroke();
+      }
+      else if (axis === 'y'){
+      	pen.beginPath();
+        pen.moveTo(...point);
+        pen.lineTo(point[0]+ARROW_LENGTH, point[1]+transformCoordinate(point[1]));
+        pen.closePath();
+        pen.stroke();
+        pen.beginPath();
+        pen.moveTo(...point);
+        pen.lineTo(point[0]-ARROW_LENGTH, point[1]+transformCoordinate(point[1]));
+        pen.closePath();
+        pen.stroke();
+      }
+      
+    }
+  }
+  
+// draw the equation
+
+const node = math.parse(eq.value)
+const code = node.compile()
+let scope = {
+    x: -10,
+}
+pen.beginPath();
+for (let x=-10;x<=10;x+=DIFF){
+	const y = code.evaluate({x});
+  
+  pen.lineTo((x+10)*SCALE, 300-((y+10)*SCALE)); 
+  
+}
+pen.closePath();
+  pen.stroke();
+}
+
+</script>
+  </body>
+</html>
