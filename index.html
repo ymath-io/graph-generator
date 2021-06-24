@@ -115,7 +115,6 @@ for (let x=-10;x<=10;x+=DIFF){
   pen.lineTo((x+10/scale.value)*SCALE, 300-((y+10/scale.value)*SCALE)); 
   
 }
-pen.closePath();
   pen.stroke();
   document.getElementById('dnld').href = gen.toDataURL();
 }
