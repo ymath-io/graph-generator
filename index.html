@@ -14,7 +14,7 @@
         <h2 class="text-2xl">
           YMath Graph Generator
         </h2>
-        <div v-for="(entry, eIdx) of equations" class="p-3 bg-indigo-50 relative my-3 rounded-lg">
+        <div v-for="(entry, eIdx) of equations" class="p-3 pt-4 bg-indigo-50 relative my-3 rounded-lg">
          <span
             @click="equations.splice(eIdx, 1)"
             class="absolute top-0 cursor-pointer font-bold text-indigo-400 hover:text-indigo-500 right-0 mr-2 mt-1 text-xs"
@@ -26,7 +26,7 @@
             Color: <input v-model="entry.color" type="color" class="border-2 inline-block px-2 border-indigo-500 mt-2 rounded-md" />
           </div>
         </div>
-        <button @click="equations.push(defEq)" class="text-center bg-indigo-50 hover:bg-indigo-100 rounded-lg w-full p-2">
+        <button @click="equations.push({...defEq})" class="text-center bg-indigo-50 hover:bg-indigo-100 rounded-lg w-full p-2">
           +
         </button>
 
