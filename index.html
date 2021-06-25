@@ -1,124 +1,171 @@
 <html>
+
   <head>
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.3/math.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
   </head>
-  <body onload="draw()">
+
+  <body >
     <div class="flex flex-row mx-10 mt-5">
-      <div>
+      <div id="app">
         <h2 class="text-2xl">
           YMath Graph Generator
         </h2>
-       <div>
-       y = <input value="4-x^2" id="eq" placeholder="Enter equation" class="border-2 inline-block px-2 border-indigo-500 mt-5 rounded-md" type="text" />
-       </div>
-       <!--- <input name="min" placeholder="Min" class="border-2 px-2 border-indigo-500 mt-2 rounded-md w-16" /> to <input placeholder="Max" name="max" class="border-2 px-2 border-indigo-500 mt-2 rounded-md w-16" />--->
-       <div>
-       Scale: <input id="scale" value="1" placeholder="Scale" class="border-2  px-2 border-indigo-500 mt-2 rounded-md" type="text" />
-       </div>
-       Color: <input id="color" value="#00ab33" type="color" class="border-2 inline-block px-2 border-indigo-500 mt-2 rounded-md"/>
-       <br/>
-       <button class="mt-4 bg-indigo-500 hover:bg-indigo-600 mr-1  text-white py-2 px-3 rounded-md" onclick="draw()">
-       Draw
-       </button>
-       <a id="dnld" class=" bg-indigo-500 hover:bg-indigo-600 text-white inline-block py-2 px-3 rounded-md" href="" download="image.png" >Download</a>
+        <div v-for="(entry, eIdx) of equations" class="p-3 bg-indigo-50 relative my-3 rounded-lg">
+         <span
+            @click="equations.splice(eIdx, 1)"
+            class="absolute top-0 cursor-pointer font-bold text-indigo-400 hover:text-indigo-500 right-0 mr-2 mt-1 text-xs"
+            >&#x2717;</span>
+          <div>
+            <span>y = </span><input v-model="entry.eq" placeholder="Enter equation" class="border-2 inline-block px-2 border-indigo-500  rounded-md" type="text" />
+          </div>
+          <div>
+            Color: <input v-model="entry.color" type="color" class="border-2 inline-block px-2 border-indigo-500 mt-2 rounded-md" />
+          </div>
+        </div>
+        <button @click="equations.push(defEq)" class="text-center bg-indigo-50 hover:bg-indigo-100 rounded-lg w-full p-2">
+          +
+        </button>
+
+        <div>
+          Scale: <input v-model="scale" placeholder="Scale" class="border-2  px-2 border-indigo-500 mt-2 rounded-md" type="text" />
+        </div>
+        <br />
+        <button class="mt-4  bg-indigo-500 hover:bg-indigo-600 mr-1  text-white py-2 px-3 rounded-md" @click="draw()">
+          Draw
+        </button>
+        <a id="dnld" class=" bg-indigo-500 hover:bg-indigo-600 text-white inline-block py-2 px-3 rounded-md" :href="dnldUrl" download="image.png">Download</a>
       </div>
       <div class="ml-10">
         <canvas width="300" height="300" class="border-2 border-indigo-500 rounded-lg" id="gen" />
       </div>
     </div>
+
     <script>
-    const DIFF = 0.01;
-const ARROW_LENGTH = 6;
-const BASE_SCALE = 15;
+      const DIFF = 0.01;
+      const ARROW_LENGTH = 6;
+      const BASE_SCALE = 15;
 
 
-const eq = document.getElementById("eq");
-const gen = document.getElementById("gen");
-const pen = gen.getContext('2d')
-const color = document.getElementById("color");
-const scale = document.getElementById("scale");
+      const eq = document.getElementById("eq");
+      const gen = document.getElementById("gen");
+      const pen = gen.getContext('2d')
+      pen.translate(0.5, 0.5)
+      const color = document.getElementById("color");
+      const scale = document.getElementById("scale");
 
-function draw(){
-	const SCALE = BASE_SCALE*scale.value;
-	pen.lineWidth = 3;
-  pen.strokeStyle = "#757579";
-	pen.clearRect(0, 0, gen.width, gen.height);
-// draw the axes
+      var app = new Vue({
+        el: '#app',
+        data: () => ({
+          equations: [{
+              eq: "4-x^2",
+              color: "#00ab33"
+            },
+            {
+              eq: "sin(x)",
+              color: "#0f8fff"
+            },
+          ],
+          defEq: {
+            eq: "x",
+            color: "#00ab33"
+          },
+          scale: 1,
+          dnldUrl: "",
+        }),
+        mounted(){
+        	this.draw();
+        },
+        methods: {
+        	 draw() {
+        const SCALE = BASE_SCALE * this.scale;
+        pen.lineWidth = 3;
+        pen.strokeStyle = "#757579";
+        pen.clearRect(0, 0, gen.width, gen.height);
+        // draw the axes
 
-	// y axis
-  pen.beginPath();
- 	pen.moveTo(150, 0);
-  pen.lineTo(150, 300);
-  pen.closePath();
- 	pen.stroke();
-  
- 	// x axis
-  pen.beginPath();
- 	pen.moveTo(0, 150);
-  pen.lineTo(300, 150);
-  pen.closePath();
- 	pen.stroke(); 
- 
-function transformCoordinate(x){
-	return (x-150)*(-1)/150*ARROW_LENGTH;
-} 
- 
-// draw the arrows
-	
-  for (let axis of ['x', 'y']){
-  	for (let side of [0, 300]){
-    	const point = axis === 'x' ? [side, 150] : [150, side];
-      
-      // se
-      if (axis === 'x'){
-      	pen.beginPath();
-        pen.moveTo(...point);
-        pen.lineTo(point[0]+transformCoordinate(point[0]), point[1]+ARROW_LENGTH);
-        pen.closePath();
-        pen.stroke();
+        // y axis
         pen.beginPath();
-        pen.moveTo(...point);
-        pen.lineTo(point[0]+transformCoordinate(point[0]), point[1]-ARROW_LENGTH);
+        pen.moveTo(150, 0);
+        pen.lineTo(150, 300);
         pen.closePath();
         pen.stroke();
-      }
-      else if (axis === 'y'){
-      	pen.beginPath();
-        pen.moveTo(...point);
-        pen.lineTo(point[0]+ARROW_LENGTH, point[1]+transformCoordinate(point[1]));
-        pen.closePath();
-        pen.stroke();
+
+        // x axis
         pen.beginPath();
-        pen.moveTo(...point);
-        pen.lineTo(point[0]-ARROW_LENGTH, point[1]+transformCoordinate(point[1]));
+        pen.moveTo(0, 150);
+        pen.lineTo(300, 150);
         pen.closePath();
         pen.stroke();
+
+        function transformCoordinate(x) {
+          return (x - 150) * (-1) / 150 * ARROW_LENGTH;
+        }
+
+        // draw the arrows
+
+        for (let axis of ['x', 'y']) {
+          for (let side of [0, 300]) {
+            const point = axis === 'x' ? [side, 150] : [150, side];
+
+            // se
+            if (axis === 'x') {
+              pen.beginPath();
+              pen.moveTo(...point);
+              pen.lineTo(point[0] + transformCoordinate(point[0]), point[1] + ARROW_LENGTH);
+              pen.closePath();
+              pen.stroke();
+              pen.beginPath();
+              pen.moveTo(...point);
+              pen.lineTo(point[0] + transformCoordinate(point[0]), point[1] - ARROW_LENGTH);
+              pen.closePath();
+              pen.stroke();
+            } else if (axis === 'y') {
+              pen.beginPath();
+              pen.moveTo(...point);
+              pen.lineTo(point[0] + ARROW_LENGTH, point[1] + transformCoordinate(point[1]));
+              pen.closePath();
+              pen.stroke();
+              pen.beginPath();
+              pen.moveTo(...point);
+              pen.lineTo(point[0] - ARROW_LENGTH, point[1] + transformCoordinate(point[1]));
+              pen.closePath();
+              pen.stroke();
+            }
+
+          }
+        }
+
+        // draw the equation
+				for (const {eq, color} of this.equations){
+          const code = math.parse(eq).compile()
+          pen.strokeStyle = color;
+          pen.lineWidth = 3;
+          pen.beginPath();
+          let prev = 0;
+          for (let x = -10; x <= 10; x += DIFF) {
+            const y = code.evaluate({
+              x
+            });
+            if ((prev < -10 && y > 10) || (prev > 10 && y < -10)) {
+              pen.moveTo((x + 10 / this.scale) * SCALE, 300 - ((y + 10 / this.scale) * SCALE));
+            } else {
+              pen.lineTo((x + 10 / this.scale) * SCALE, 300 - ((y + 10 / this.scale) * SCALE));
+            }
+            prev = y;
+          }
+          pen.stroke();
+        }
+        this.dnldUrl = gen.toDataURL();
       }
-      
-    }
-  }
-  
-// draw the equation
+        }
+      })
 
-const node = math.parse(eq.value)
-const code = node.compile()
-let scope = {
-    x: -10,
-}
-pen.strokeStyle = color.value;
-pen.lineWidth = 3;
-pen.beginPath();
-for (let x=-10;x<=10;x+=DIFF){
-	const y = code.evaluate({x});
-  
-  pen.lineTo((x+10/scale.value)*SCALE, 300-((y+10/scale.value)*SCALE)); 
-  
-}
-  pen.stroke();
-  document.getElementById('dnld').href = gen.toDataURL();
-}
+     
 
-</script>
+    </script>
+
   </body>
+
 </html>
